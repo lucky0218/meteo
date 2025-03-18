@@ -15,7 +15,7 @@ const Dashboard = () => {
     const showToast = useShowToast();
 
     const [selectedStation, setSelectedStation] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState("2025-03-09");
     const [loading, setLoading] = useState(false);
     const [advancedLoading, setAdvancedLoading] = useState(false);
     const [advancedRenderReady, setAdvancedRenderReady] = useState(false);
