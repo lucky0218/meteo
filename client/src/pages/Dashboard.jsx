@@ -376,6 +376,7 @@ const Dashboard = () => {
                                             size="md"
                                             borderRadius="md"
                                             maxW="200px"
+                                            max="2025-03-09"
                                         />
 
                                         <Button
