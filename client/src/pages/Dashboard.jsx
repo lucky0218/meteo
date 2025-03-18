@@ -629,7 +629,7 @@ const Dashboard = () => {
                             <TemperatureComparisonChart
                                 data={
                                     advancedData.map(d => (
-                                        { ...d, name: stationList.find(s => s.code === d.Station)?.name }
+                                        { ...d, name: `${stationList.find(s => s.code === d.Station)?.name} (${d.Station})` }
                                     ))
                                 }
                                 date={selectedAnalysisDate}
