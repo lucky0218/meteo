@@ -620,7 +620,7 @@ const Dashboard = () => {
                         color="white"
                         borderTopRadius="md"
                     >
-                        <ModalHeader>Temperature Comparison</ModalHeader>
+                        <ModalHeader>Advanced Analysis Complete</ModalHeader>
                         <ModalCloseButton />
                     </MotionBox>
 
