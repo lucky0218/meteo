@@ -18,15 +18,12 @@ export default function HomePage() {
 
     const fetchRealtimeWeatherData = async (lat, lon) => {
         try {
-            console.log("Detected location:", lat, lon);
             const response = await fetch(
                 `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m`
             );
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+
             const data = await response.json();
-            console.log(data);
+            
             setWeatherData({
                 temp: data.current.temperature_2m,
                 feels_like: data.current.apparent_temperature,
@@ -40,17 +37,13 @@ export default function HomePage() {
     };
 
     useEffect(() => {
+        if (weatherData) return;
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
                     fetchRealtimeWeatherData(latitude, longitude);
-                    const interval = setInterval(() => {
-                        fetchRealtimeWeatherData(latitude, longitude);
-                    }, 60000);
-                    return () => clearInterval(interval);
-                },
-                (error) => {
+                }, (error) => {
                     console.error("Error obtaining location:", error);
                     showToast("error", "An error occurred while fetching location data", "See console for more details");
                 }
@@ -58,7 +51,7 @@ export default function HomePage() {
         } else {
             showToast("error", "Geolocation is not supported by your browser");
         }
-    }, []);
+    }, [weatherData]);
 
     const WeatherStat = ({ icon, label, value }) => (
         <MotionBox
