@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { motion } from "framer-motion";
-import { Heading, Text, Box, Button, Flex, Grid, Icon, Stack, Skeleton } from "@chakra-ui/react";
-import { FiArrowRight, FiDroplet, FiThermometer, FiWind } from "react-icons/fi";
+import { Heading, Text, Box, Button, Flex, Grid, Icon, Stack, Spinner } from "@chakra-ui/react";
+import { FiArrowRight, FiDroplet, FiMapPin, FiThermometer, FiWind } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useShowToast } from "../extensions/useShowToast";
 import { useEffect, useState } from "react";
@@ -14,7 +14,9 @@ export default function HomePage() {
 
     const showToast = useShowToast();
 
+    const [requestReceived, setRequestReceived] = useState(false);
     const [weatherData, setWeatherData] = useState(null);
+    const [locationData, setLocationData] = useState(null);
 
     const fetchRealtimeWeatherData = async (lat, lon) => {
         try {
@@ -30,11 +32,30 @@ export default function HomePage() {
                 humidity: data.current.relative_humidity_2m,
                 wind_speed: data.current.wind_speed_10m
             });
+
+            reverseGeocode(lat, lon);
         } catch (error) {
             console.error(error);
             showToast("error", "An error occurred while fetching weather data", "See console for more details");
         }
     };
+
+    const reverseGeocode = async (lat, lon) => {
+        try {
+            const response = await fetch(
+                `https://api-bdc.net/data/reverse-geocode?key=bdc_4293628798ca4d9b8515a1f3cb491219&latitude=${lat}&longitude=${lon}&localityLanguage=en`
+            );
+
+            const data = await response.json();
+
+            setLocationData(`${data.city}, ${data.principalSubdivision}, ${data.countryName}`);
+        } catch (error) {
+            console.error(error);
+            showToast("error", "An error occurred while fetching location data", "See console for more details");
+        } finally {
+            setRequestReceived(true);
+        }
+    }
 
     useEffect(() => {
         if (weatherData) return;
@@ -44,49 +65,24 @@ export default function HomePage() {
                     const { latitude, longitude } = position.coords;
                     fetchRealtimeWeatherData(latitude, longitude);
                 }, (error) => {
+                    setRequestReceived(true);
                     console.error("Error obtaining location:", error);
                     showToast("error", "An error occurred while fetching location data", "See console for more details");
                 }
             );
         } else {
             showToast("error", "Geolocation is not supported by your browser");
+            setRequestReceived(true);
         }
     }, [weatherData]);
 
-    const WeatherStat = ({ icon, label, value }) => (
-        <MotionBox
-            bg="white"
-            p={5}
-            borderRadius="xl"
-            boxShadow="lg"
-            whileHover={{ y: -2, scale: 1.02 }}
-            transition={{ duration: 0.2 }}
-        >
-            <Box display="flex">
-                <Box
-                    bg="blue.50"
-                    p={4}
-                    borderRadius="full"
-                    mr={4}
-                    display="flex"
-                    alignItems="center"
-                    justifyContent="center"
-                >
-                    <Icon as={icon} boxSize={6} color="blue.600" />
-                </Box>
-                <Box display="flex" flexDirection="column">
-                    <Text fontSize="sm" color="gray.500" fontWeight="medium" textAlign={"left"}>
-                        {label}
-                    </Text>
-                    <Text fontSize="2xl" fontWeight="bold" color="gray.800" textAlign={"left"}>
-                        {value}
-                    </Text>
-                </Box>
-            </Box>
-        </MotionBox>
+    if (!requestReceived) return (
+        <Box display={"flex"} flexDir={"column"} justifyContent={"center"} alignItems={"center"} minH={"100vh"}>
+            <Spinner color='#4f46e5' />
+        </Box>
     );
 
-    return (
+    if (requestReceived) return (
         <MotionBox
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -143,66 +139,178 @@ export default function HomePage() {
                     </MotionButton>
                 </Stack>
 
-                <Heading
-                    fontSize={"3xl"}
-                    fontWeight="extrabold"
-                    bgGradient="linear(to-r, #4f46e5, #ec4899)"
-                    bgClip="text"
-                    lineHeight="1.2"
-                    mb={5}
-                >
-                    Real-time Weather Analytics
-                </Heading>
+                {weatherData !== null && locationData !== null && (
+                    <>
+                        <Grid
+                            templateColumns={["1fr", "1fr", "repeat(2, 1fr)", "repeat(4, 1fr)"]}
+                            gap={6}
+                            w="100%"
+                        >
+                            <MotionBox
+                                bg="white"
+                                p={5}
+                                borderRadius="xl"
+                                boxShadow="lg"
+                                whileHover={{ y: -2, scale: 1.02 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Box display="flex">
+                                    <Box
+                                        bg="blue.50"
+                                        p={4}
+                                        borderRadius="full"
+                                        mr={4}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <Icon as={FiThermometer} boxSize={6} color="blue.600" />
+                                    </Box>
+                                    <Box display="flex" flexDirection="column">
+                                        <Text fontSize="sm" color="gray.500" fontWeight="medium" textAlign={"left"}>
+                                            Temperature
+                                        </Text>
+                                        <Text fontSize="2xl" fontWeight="bold" color="gray.800" textAlign={"left"}>
+                                            {`${weatherData.temp} °C`}
+                                        </Text>
+                                    </Box>
+                                </Box>
+                            </MotionBox>
 
-                {/* <Heading
-                    fontSize={"3xl"}
-                    fontWeight="extrabold"
-                    bgGradient="linear(to-r, #4f46e5, #ec4899)"
-                    bgClip="text"
-                    lineHeight="1.2"
-                    mb={5}
-                >
-                    Your Current Location:
-                </Heading> */}
+                            <MotionBox
+                                bg="white"
+                                p={5}
+                                borderRadius="xl"
+                                boxShadow="lg"
+                                whileHover={{ y: -2, scale: 1.02 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Box display="flex">
+                                    <Box
+                                        bg="blue.50"
+                                        p={4}
+                                        borderRadius="full"
+                                        mr={4}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <Icon as={FiThermometer} boxSize={6} color="blue.600" />
+                                    </Box>
+                                    <Box display="flex" flexDirection="column">
+                                        <Text fontSize="sm" color="gray.500" fontWeight="medium" textAlign={"left"}>
+                                            Feels-like
+                                        </Text>
+                                        <Text fontSize="2xl" fontWeight="bold" color="gray.800" textAlign={"left"}>
+                                            {`${weatherData.feels_like} °C`}
+                                        </Text>
+                                    </Box>
+                                </Box>
+                            </MotionBox>
 
-                <Grid
-                    templateColumns={["1fr", "1fr", "repeat(2, 1fr)", "repeat(4, 1fr)"]}
-                    gap={6}
-                    w="100%"
-                    mb={16}
-                >
-                    {weatherData ? (
-                        <>
-                            <WeatherStat
-                                icon={FiThermometer}
-                                label="Temperature"
-                                value={`${weatherData.temp} °C`}
-                            />
-                            <WeatherStat
-                                icon={FiThermometer}
-                                label="Feels Like"
-                                value={`${weatherData.feels_like} °C`}
-                            />
-                            <WeatherStat
-                                icon={FiDroplet}
-                                label="Humidity"
-                                value={`${weatherData.humidity} %`}
-                            />
-                            <WeatherStat
-                                icon={FiWind}
-                                label="Wind Speed"
-                                value={`${weatherData.wind_speed.toFixed(1)} km/h`}
-                            />
-                        </>
-                    ) : (
-                        <>
-                            <Skeleton height="96px" borderRadius="xl" fadeDuration={1} />
-                            <Skeleton height="96px" borderRadius="xl" fadeDuration={1} />
-                            <Skeleton height="96px" borderRadius="xl" fadeDuration={1} />
-                            <Skeleton height="96px" borderRadius="xl" fadeDuration={1} />
-                        </>
-                    )}
-                </Grid>
+                            <MotionBox
+                                bg="white"
+                                p={5}
+                                borderRadius="xl"
+                                boxShadow="lg"
+                                whileHover={{ y: -2, scale: 1.02 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Box display="flex">
+                                    <Box
+                                        bg="blue.50"
+                                        p={4}
+                                        borderRadius="full"
+                                        mr={4}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <Icon as={FiDroplet} boxSize={6} color="blue.600" />
+                                    </Box>
+                                    <Box display="flex" flexDirection="column">
+                                        <Text fontSize="sm" color="gray.500" fontWeight="medium" textAlign={"left"}>
+                                            Humidity
+                                        </Text>
+                                        <Text fontSize="2xl" fontWeight="bold" color="gray.800" textAlign={"left"}>
+                                            {`${weatherData.humidity} %`}
+                                        </Text>
+                                    </Box>
+                                </Box>
+                            </MotionBox>
+
+                            <MotionBox
+                                bg="white"
+                                p={5}
+                                borderRadius="xl"
+                                boxShadow="lg"
+                                whileHover={{ y: -2, scale: 1.02 }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <Box display="flex">
+                                    <Box
+                                        bg="blue.50"
+                                        p={4}
+                                        borderRadius="full"
+                                        mr={4}
+                                        display="flex"
+                                        alignItems="center"
+                                        justifyContent="center"
+                                    >
+                                        <Icon as={FiWind} boxSize={6} color="blue.600" />
+                                    </Box>
+                                    <Box display="flex" flexDirection="column">
+                                        <Text fontSize="sm" color="gray.500" fontWeight="medium" textAlign={"left"}>
+                                            Wind Speed
+                                        </Text>
+                                        <Text fontSize="2xl" fontWeight="bold" color="gray.800" textAlign={"left"}>
+                                            {`${weatherData.wind_speed.toFixed(1)} km/h`}
+                                        </Text>
+                                    </Box>
+                                </Box>
+                            </MotionBox>
+                        </Grid>
+
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.2 }}
+                        >
+                            <Flex
+                                align="center"
+                                justify="center"
+                                bg="whiteAlpha.600"
+                                backdropFilter="blur(4px)"
+                                px={6}
+                                py={3}
+                                mt={10}
+                                borderRadius="full"
+                                boxShadow="sm"
+                                gap={2}
+                                transition="all 0.2s ease"
+                            >
+                                <Icon 
+                                    as={FiMapPin} 
+                                    boxSize={5} 
+                                    color="blue.500" 
+                                    style={{ filter: "drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1))" }}
+                                />
+                                <Text
+                                    fontSize="lg"
+                                    fontWeight="medium"
+                                    bgGradient="linear(to-r, blue.600, purple.500)"
+                                    bgClip="text"
+                                    letterSpacing="wide"
+                                >
+                                    Current Location:{" "}
+                                    <Text as="span" fontWeight="semibold" color="gray.700">
+                                        {locationData}
+                                    </Text>
+                                </Text>
+                            </Flex>
+                        </motion.div>
+                    </>
+                )}
             </Flex>
         </MotionBox>
     );
