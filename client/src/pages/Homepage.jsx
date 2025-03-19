@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { motion } from "framer-motion";
 import { Heading, Text, Box, Button, Flex, Grid, Icon, Stack, Spinner } from "@chakra-ui/react";
-import { FiArrowRight, FiDroplet, FiMapPin, FiThermometer, FiWind } from "react-icons/fi";
+import { FiArrowRight, FiDroplet, FiMapPin, FiRefreshCw, FiThermometer, FiWind } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { useShowToast } from "../extensions/useShowToast";
 import { useEffect, useState } from "react";
@@ -17,6 +17,12 @@ export default function HomePage() {
     const [requestReceived, setRequestReceived] = useState(false);
     const [weatherData, setWeatherData] = useState(null);
     const [locationData, setLocationData] = useState(null);
+
+    const handleRefresh = () => {
+        setWeatherData(null);
+        setLocationData(null);
+        setRequestReceived(false);
+    };
 
     const fetchRealtimeWeatherData = async (lat, lon) => {
         try {
@@ -308,6 +314,29 @@ export default function HomePage() {
                                     </Text>
                                 </Text>
                             </Flex>
+
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Flex
+                                    justifyContent={"center"}
+                                    align="center"
+                                    gap={2}
+                                    cursor="pointer"
+                                    onClick={handleRefresh}
+                                    color="gray.600"
+                                    _hover={{ color: "blue.600" }}
+                                    transition="color 0.2s ease"
+                                    mt={4}
+                                >
+                                    <Icon as={FiRefreshCw} boxSize={4} />
+                                    <Text fontSize="sm" fontWeight="medium">
+                                        Refresh Data
+                                    </Text>
+                                </Flex>
+                            </motion.div>
                         </motion.div>
                     </>
                 )}
