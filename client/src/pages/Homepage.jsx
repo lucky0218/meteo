@@ -74,7 +74,7 @@ export default function HomePage() {
             showToast("error", "Geolocation is not supported by your browser");
             setRequestReceived(true);
         }
-    }, [weatherData, showToast]);
+    }, [weatherData]);
 
     if (!requestReceived) return (
         <Box display={"flex"} flexDir={"column"} justifyContent={"center"} alignItems={"center"} minH={"100vh"}>

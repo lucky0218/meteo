@@ -11,6 +11,7 @@ export function useShowToast() {
             status: type,
             duration: 5000,
             isClosable: true,
+            position: "bottom-right",
         });
     }, [toast]);
 
