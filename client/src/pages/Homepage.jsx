@@ -48,7 +48,7 @@ export default function HomePage() {
 
             const data = await response.json();
 
-            setLocationData(`${data.city}, ${data.principalSubdivision}, ${data.countryName}`);
+            setLocationData([data.city, data.principalSubdivision, data.countryName].filter(Boolean).join(', '));
         } catch (error) {
             console.error(error);
             showToast("error", "An error occurred while fetching location data", "See console for more details");
@@ -74,7 +74,7 @@ export default function HomePage() {
             showToast("error", "Geolocation is not supported by your browser");
             setRequestReceived(true);
         }
-    }, [weatherData]);
+    }, [weatherData, showToast]);
 
     if (!requestReceived) return (
         <Box display={"flex"} flexDir={"column"} justifyContent={"center"} alignItems={"center"} minH={"100vh"}>
