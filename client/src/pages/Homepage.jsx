@@ -58,7 +58,7 @@ export default function HomePage() {
     }
 
     useEffect(() => {
-        if (weatherData) return;
+        if (requestReceived) return;
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
@@ -74,7 +74,7 @@ export default function HomePage() {
             showToast("error", "Geolocation is not supported by your browser");
             setRequestReceived(true);
         }
-    }, [weatherData]);
+    }, [requestReceived]);
 
     if (!requestReceived) return (
         <Box display={"flex"} flexDir={"column"} justifyContent={"center"} alignItems={"center"} minH={"100vh"}>
