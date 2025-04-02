@@ -87,7 +87,7 @@
         "cliack": "Click",
         "here": "Here",
         "toViewItAgain": "to view it again.",
-        "footerLeft": "Weather data is updated daily at 9:00 PM (GMT+8).",
+        "footerLeft": "Latest available data: {{date}}",
         "paginationMessage": "Showing {{start}} - {{end}} of {{total}} {{recordText}}",
         "record": "record",
         "records": "records",
@@ -104,6 +104,7 @@
         "allStations": "All Stations",
         "searched": "Searched",
         "others": "Other Stations",
-        "noStationsFound": "No stations found"
+        "noStationsFound": "No stations found",
+        "noDataAvailable": "Ohno! There are no weather data available"
     }
 }

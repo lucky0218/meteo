@@ -87,7 +87,7 @@
         "click": "点击",
         "here": "这里",
         "toViewItAgain": "再次查看。",
-        "footerLeft":"天气数据每天晚上9:00 (GMT+8) 更新",
+        "footerLeft": "最新可用数据日期：{{date}}",
         "paginationMessage": "显示 {{start}} - {{end}} 条，共 {{total}} 条 {{recordText}}",
         "record": "记录",
         "records": "记录",
@@ -104,6 +104,7 @@
         "allStations": "所有站点",
         "searched": "已搜索站点",
         "others": "其他站点",
-        "noStationsFound": "未找到站点"
-    }
+        "noStationsFound": "未找到站点",
+        "noDataAvailable": "没有可用的天气数据！"
+    }   
 }

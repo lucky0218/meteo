@@ -30,6 +30,7 @@ const Dashboard = () => {
             return now.toISOString().split('T')[0];
         }
     };
+    const latestDataDate = getDynamicDate();
 
     const [selectedStation, setSelectedStation] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
@@ -38,9 +39,9 @@ const Dashboard = () => {
     const [selectedTempType, setSelectedTempType] = useState("avg");
     const [searchedStationCode, setSearchedStationCode] = useState(null);
     const [selectedStationName, setSelectedStationName] = useState("");
-    const [startDate, setStartDate] = useState(getDynamicDate());
-    const [endDate, setEndDate] = useState(getDynamicDate());
-    const [selectedDate, setSelectedDate] = useState(getDynamicDate());
+    const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
+    const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [loading, setLoading] = useState(false);
     const [advancedLoading, setAdvancedLoading] = useState(false);
     const [advancedRenderReady, setAdvancedRenderReady] = useState(false);
@@ -56,6 +57,7 @@ const Dashboard = () => {
     const [chartModalOpen, setChartModalOpen] = useState(false);
     const [isSorting, setIsSorting] = useState(false);
     const [chartKey, setChartKey] = useState(0);
+    const [noResults, setNoResults] = useState(false);
 
     const recordsPerPage = activeTab === "station" ? 9 : 7;
 
@@ -84,6 +86,7 @@ const Dashboard = () => {
             const response = await server.get(`/by_station?${query}`);
             setData(response.data.data);
             if (response.data.length === 0) {
+                setNoResults(true);
                 showToast(
                     "error",
                     "",
@@ -93,6 +96,7 @@ const Dashboard = () => {
         } catch (error) {
             setData([]);
             if (error.response.data.success === false) {
+                setNoResults(true);
                 showToast(
                     "error",
                     t("error"),
@@ -119,6 +123,7 @@ const Dashboard = () => {
         } catch (error) {
             setData([]);
             if (error.response.data.success === false) {
+                setNoResults(true);
                 showToast(
                     "error",
                     t("error"),
@@ -143,6 +148,7 @@ const Dashboard = () => {
             const response = await server.get(`/by_multiple_stations?${query}`);
             setData(response.data.data);
             if (response.data.length === 0) {
+                setNoResults(true);
                 showToast(
                     "error",
                     "",
@@ -152,6 +158,7 @@ const Dashboard = () => {
         } catch (error) {
             setData([]);
             if (error.response.data.success === false) {
+                setNoResults(true);
                 showToast(
                     "error",
                     t("error"),
@@ -413,6 +420,7 @@ const Dashboard = () => {
                                         setEndDate(endDate);
                                         setData([]);
                                         setAdvancedRenderReady(false);
+                                        setNoResults(false);
                                     }}
                                     _selected={{
                                         bgGradient: "linear(to-r, #6366f1, #ec4899)",
@@ -434,6 +442,7 @@ const Dashboard = () => {
                                         setCurrentPage(1);
                                         setActiveTab("date");
                                         setData([]);
+                                        setNoResults(false);
                                     }}
                                     _selected={{
                                         bgGradient: "linear(to-r, #6366f1, #ec4899)",
@@ -455,6 +464,7 @@ const Dashboard = () => {
                                         setCurrentPage(1);
                                         setActiveTab("tableAndLineChart");
                                         setData([]);
+                                        setNoResults(false);
                                     }}
                                     _selected={{
                                         bgGradient: "linear(to-r, #6366f1, #ec4899)",
@@ -555,7 +565,6 @@ const Dashboard = () => {
                                                     size="md"
                                                     borderRadius="md"
                                                     w="100%"
-                                                    max={getDynamicDate()}
                                                 />
                                             </FormControl>
 
@@ -568,7 +577,6 @@ const Dashboard = () => {
                                                     size="md"
                                                     borderRadius="md"
                                                     w="100%"
-                                                    max={getDynamicDate()}
                                                 />
                                             </FormControl>
                                         </Flex>
@@ -625,7 +633,6 @@ const Dashboard = () => {
                                                 w={{ base: "100%", sm: "200px" }}
                                                 display={"flex"}
                                                 justifyContent={{ base: "center", sm: "flex-start" }}
-                                                max={getDynamicDate()}
                                             />
 
 
@@ -768,7 +775,6 @@ const Dashboard = () => {
                                                     size="md"
                                                     borderRadius="md"
                                                     w="100%"
-                                                    max={getDynamicDate()}
                                                 />
                                             </FormControl>
 
@@ -781,7 +787,6 @@ const Dashboard = () => {
                                                     size="md"
                                                     borderRadius="md"
                                                     w="100%"
-                                                    max={getDynamicDate()}
                                                 />
                                             </FormControl>
                                         </Flex>
@@ -817,6 +822,24 @@ const Dashboard = () => {
                             </TabPanels>
                         </Tabs>
                     </MotionBox>
+
+                    {displayedData.length === 0 && noResults === true && (
+                        <MotionBox
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            textAlign="center"
+                            fontSize="xl"
+                            fontWeight="bold"
+                            color="gray.500"
+                            p={10}
+                            mx="auto"
+                            maxW="1200px"
+                            mt={8}
+                            mb={8}
+                        >
+                            {t("noDataAvailable")}
+                        </MotionBox>
+                    )}
 
                     {displayedData.length > 0 && activeTab === "date" && (
                         !screenIsNarrowerThan610px ? (
@@ -1458,7 +1481,7 @@ const Dashboard = () => {
                 >
                     {(!screenIsNarrowerThan800px || data.length === 0) && (
                         <Text fontSize="sm" color="gray.600" alignContent={{ base: 'center', md: 'left' }} p={3}>
-                            {t("footerLeft")}
+                            {t("footerLeft", { date: latestDataDate })}
                         </Text>
                     )}
 
