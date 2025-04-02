@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { motion } from 'framer-motion';
-import { Heading, Button, Tabs, TabList, TabPanels, Tab, TabPanel, Menu, MenuButton, MenuList, MenuItem, Flex, Input, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Box, Text, IconButton, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Stack, Tag, TagLabel, TagLeftIcon, SimpleGrid, VStack, useDisclosure, HStack, useMediaQuery, FormControl, FormLabel, useBreakpointValue, CheckboxGroup, RadioGroup, Radio, CheckboxIcon } from '@chakra-ui/react';
+import { Heading, Button, Tabs, TabList, TabPanels, Tab, TabPanel, Menu, MenuButton, MenuList, MenuItem, Flex, Input, Table, Thead, Tbody, Tr, Th, Td, TableContainer, Box, Text, IconButton, Checkbox, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Stack, Tag, TagLabel, TagLeftIcon, SimpleGrid, VStack, useDisclosure, HStack, useMediaQuery, FormControl, FormLabel, useBreakpointValue, CheckboxGroup, RadioGroup, Radio, CheckboxIcon, Divider } from '@chakra-ui/react';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { useState } from 'react';
 import { useShowToast } from '../extensions/useShowToast';
@@ -32,6 +32,7 @@ const Dashboard = () => {
     };
 
     const [selectedStation, setSelectedStation] = useState(null);
+    const [searchTerm, setSearchTerm] = useState("");
     const [selectedStations, setSelectedStations] = useState([]);
     const [confirmedStations, setConfirmedStations] = useState([]);
     const [selectedTempType, setSelectedTempType] = useState("avg");
@@ -166,12 +167,12 @@ const Dashboard = () => {
         }
     }
 
-    const handleStationsSelection = (station) => {
-        setSelectedStations((prevSelected) =>
-            prevSelected.includes(station)
-                ? prevSelected.filter(s => s !== station)
-                : [...prevSelected, station]
-        );
+    const handleStationsSelection = (stationCode) => {
+        if (selectedStations.includes(stationCode)) {
+            setSelectedStations(selectedStations.filter(code => code !== stationCode));
+        } else {
+            setSelectedStations([...selectedStations, stationCode]);
+        }
     };
 
     const openAdvancedAnalysisModal = async () => {
@@ -315,20 +316,31 @@ const Dashboard = () => {
     };
 
     const stationList = [
-        { code: 58349, name: t("Suzhou"), image: "Suzhou.jpg" },
-        { code: 58238, name: t("Nanjing"), image: "Nanjing.jpg" },
-        { code: 58354, name: t("Wuxi"), image: "Wuxi.jpg" },
-        { code: 58343, name: t("Changzhou"), image: "Changzhou.jpg" },
-        { code: 58252, name: t("Zhenjiang"), image: "Zhenjiang.jpg" },
-        { code: 58259, name: t("Nantong"), image: "Nantong.jpg" },
-        { code: 58246, name: t("Taizhou"), image: "Taizhou.jpg" },
-        { code: 58245, name: t("Yangzhou"), image: "Yangzhou.jpg" },
-        { code: 58027, name: t("Xuzhou"), image: "Xuzhou.jpg" },
-        { code: 58044, name: t("Lianyungang"), image: "Lianyungang.jpg" },
-        { code: 58141, name: t("Huaian"), image: "Huaian.jpg" },
-        { code: 58154, name: t("Yancheng"), image: "Yancheng.jpg" },
-        { code: 58131, name: t("Suqian"), image: "Suqian.jpg" },
+        { code: 58349, name: t("Suzhou"), englishName: "Suzhou", chineseName: "苏州", image: "Suzhou.jpg" },
+        { code: 58238, name: t("Nanjing"), englishName: "Nanjing", chineseName: "南京", image: "Nanjing.jpg" },
+        { code: 58354, name: t("Wuxi"), englishName: "Wuxi", chineseName: "无锡", image: "Wuxi.jpg" },
+        { code: 58343, name: t("Changzhou"), englishName: "Changzhou", chineseName: "常州", image: "Changzhou.jpg" },
+        { code: 58252, name: t("Zhenjiang"), englishName: "Zhenjiang", chineseName: "镇江", image: "Zhenjiang.jpg" },
+        { code: 58259, name: t("Nantong"), englishName: "Nantong", chineseName: "南通", image: "Nantong.jpg" },
+        { code: 58246, name: t("Taizhou"), englishName: "Taizhou", chineseName: "泰州", image: "Taizhou.jpg" },
+        { code: 58245, name: t("Yangzhou"), englishName: "Yangzhou", chineseName: "扬州", image: "Yangzhou.jpg" },
+        { code: 58027, name: t("Xuzhou"), englishName: "Xuzhou", chineseName: "徐州", image: "Xuzhou.jpg" },
+        { code: 58044, name: t("Lianyungang"), englishName: "Lianyungang", chineseName: "连云港", image: "Lianyungang.jpg" },
+        { code: 58141, name: t("Huaian"), englishName: "Huaian", chineseName: "淮安", image: "Huaian.jpg" },
+        { code: 58154, name: t("Yancheng"), englishName: "Yancheng", chineseName: "盐城", image: "Yancheng.jpg" },
+        { code: 58131, name: t("Suqian"), englishName: "Suqian", chineseName: "宿迁", image: "Suqian.jpg" },
     ];
+
+    const searchTermLower = searchTerm.toLowerCase();
+
+    const filteredStations = stationList.filter(station =>
+        station.name.toLowerCase().includes(searchTermLower) || 
+        station.englishName.toLowerCase().includes(searchTermLower) || 
+        station.chineseName.includes(searchTerm) 
+    );
+    const otherStations = stationList.filter(station => 
+        !filteredStations.some(filtered => filtered.code === station.code)
+    );
 
     const paginateData = (data) => {
         const startIndex = (currentPage - 1) * recordsPerPage;
@@ -469,28 +481,60 @@ const Dashboard = () => {
                                         justify="center"
                                     >
                                         {/* First Row - Station Selection */}
-                                        <Flex
-                                            width={{ base: "100%", sm: "auto" }}
-                                            justifyContent="center"
-                                        >
+                                        <Flex width={{ base: "100%", sm: "auto" }} justifyContent="center">
                                             <Menu>
-                                                <MenuButton
-                                                    as={Button}
-                                                    rightIcon={<ChevronDownIcon />}
-                                                    w={{ base: "100%", sm: "auto" }}
+                                                <MenuButton 
+                                                    as={Button} 
+                                                    rightIcon={<ChevronDownIcon />} 
+                                                    w={{ base: "100%", sm: "auto" }} 
                                                     mt={{ base: 0, sm: 0, md: 7 }}
                                                 >
                                                     {selectedStation ? `${stationList.find(s => s.code === selectedStation).name} (${selectedStation})` : t("selectStation")}
                                                 </MenuButton>
                                                 <MenuList maxH="300px" overflowY="auto">
-                                                    {stationList.map(station => (
-                                                        <MenuItem
-                                                            key={station.code}
-                                                            onClick={() => setSelectedStation(station.code)}
-                                                        >
-                                                            {station.name} ({station.code})
-                                                        </MenuItem>
-                                                    ))}
+                                                    <VStack p={2} spacing={2} align="stretch">
+                                                        {/* Search Input */}
+                                                        <Input
+                                                            placeholder={`${t("searchAStation")}...`}
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                        />
+                                                        <Divider />
+
+                                                        {/* Searched Stations */}
+                                                        {filteredStations.length > 0 ? (
+                                                            <>
+                                                                <Text fontWeight="bold">
+                                                                    {searchTerm ? t("searched") : t("allStations")}
+                                                                </Text>
+                                                                {filteredStations.map(station => (
+                                                                    <MenuItem 
+                                                                        key={station.code} 
+                                                                        onClick={() => setSelectedStation(station.code)}
+                                                                    >
+                                                                        {station.name} ({station.code})
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </>
+                                                        ) : (
+                                                            <Text color="gray.500">{t("noStationsFound")}</Text>
+                                                        )}
+
+                                                        {/* Other Stations */}
+                                                        {otherStations.length > 0 && (
+                                                            <>
+                                                                <Text fontWeight="bold">{t("others")}</Text>
+                                                                {otherStations.map(station => (
+                                                                    <MenuItem 
+                                                                        key={station.code} 
+                                                                        onClick={() => setSelectedStation(station.code)}
+                                                                    >
+                                                                        {station.name} ({station.code})
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </>
+                                                        )}
+                                                    </VStack>
                                                 </MenuList>
                                             </Menu>
                                         </Flex>
@@ -650,25 +694,64 @@ const Dashboard = () => {
                                                         : t("selectMultipleStations")}
                                                 </MenuButton>
                                                 <MenuList maxH="300px" overflowY="auto">
-                                                    <CheckboxGroup value={selectedStations}>
-                                                        {stationList.map(station => (
-                                                            <MenuItem key={station.code} as="div">
-                                                                <Checkbox
-                                                                    value={station.code}
-                                                                    isChecked={selectedStations.includes(station.code)}
-                                                                    onChange={() => handleStationsSelection(station.code)}
-                                                                    colorScheme="purple"
-                                                                    icon={<CheckboxIcon bg="linear-gradient(45deg, #6366f1, #ec4899)" />}
-                                                                >
-                                                                    {station.name} ({station.code})
-                                                                </Checkbox>
-                                                            </MenuItem>
-                                                        ))}
-                                                    </CheckboxGroup>
+                                                    <VStack p={2} spacing={2} align="stretch">
+                                                        {/* Search Input */}
+                                                        <Input
+                                                            placeholder={t("Search station...")}
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                        />
+                                                        <Divider />
+
+                                                        {/* Stations List */}
+                                                        {filteredStations.length > 0 ? (
+                                                            <>
+                                                                <Text fontWeight="bold">
+                                                                    {searchTerm ? t("Searched Stations") : t("All Stations")}
+                                                                </Text>
+                                                                <CheckboxGroup value={selectedStations}>
+                                                                    {filteredStations.map(station => (
+                                                                        <MenuItem key={station.code} as="div">
+                                                                            <Checkbox
+                                                                                value={station.code}
+                                                                                isChecked={selectedStations.includes(station.code)}
+                                                                                onChange={() => handleStationsSelection(station.code)}
+                                                                                colorScheme="purple"
+                                                                            >
+                                                                                {station.name} ({station.code})
+                                                                            </Checkbox>
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </CheckboxGroup>
+                                                            </>
+                                                        ) : (
+                                                            <Text color="gray.500">{t("No stations found")}</Text>
+                                                        )}
+
+                                                        {/* Other Stations */}
+                                                        {otherStations.length > 0 && (
+                                                            <>
+                                                                <Text fontWeight="bold">{t("others")}</Text>
+                                                                <CheckboxGroup value={selectedStations}>
+                                                                    {otherStations.map(station => (
+                                                                        <MenuItem key={station.code} as="div">
+                                                                            <Checkbox
+                                                                                value={station.code}
+                                                                                isChecked={selectedStations.includes(station.code)}
+                                                                                onChange={() => handleStationsSelection(station.code)}
+                                                                                colorScheme="purple"
+                                                                            >
+                                                                                {station.name} ({station.code})
+                                                                            </Checkbox>
+                                                                        </MenuItem>
+                                                                    ))}
+                                                                </CheckboxGroup>
+                                                            </>
+                                                        )}
+                                                    </VStack>
                                                 </MenuList>
                                             </Menu>
                                         </Flex>
-
                                         {/* Second Row - Start & End Date Inputs */}
                                         <Flex
                                             gap={3}

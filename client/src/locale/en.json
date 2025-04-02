@@ -99,6 +99,11 @@
         "tableAndLineChart": "Table and Line Chart",
         "selectMultipleStations": "Select Multiple Stations",
         "stationsSelected": "Stations Selected",
-        "current": "Current"
+        "current": "Current",
+        "searchAStation": "Search a Station",
+        "allStations": "All Stations",
+        "searched": "Searched",
+        "others": "Others",
+        "noStationsFound": "No stations found"
     }
 }

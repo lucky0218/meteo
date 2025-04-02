@@ -99,6 +99,11 @@
         "tableAndLineChart": "表格和折线图",
         "selectMultipleStations": "选择多个站点",
         "stationsSelected": "已选站点",
-        "current": "当前"
+        "current": "当前",
+        "searchAStation": "搜索站点",
+        "allStations": "所有站点",
+        "searched": "已搜索站点",
+        "others": "其他站点",
+        "noStationsFound": "未找到站点"
     }
 }
