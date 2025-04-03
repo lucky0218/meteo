@@ -96,14 +96,16 @@ export default function HomePage() {
                     (position) => {
                         const { latitude, longitude } = position.coords;
                         fetchRealtimeWeatherData(latitude, longitude);
-                    }, (error) => {
+                    }, 
+                    (error) => {
                         setRequestReceived(true);
                         showToast(
                             "error",
                             t("anErrorOccuredWhileFetchingLocationData"),
                             error.message
                         );
-                    }
+                    },
+                    { timeout: 1500 } // Add timeout of 1.5 second
                 );
             } else {
                 showToast(
