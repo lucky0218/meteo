@@ -630,9 +630,7 @@ const Dashboard = () => {
                                                 onChange={(e) => setSelectedDate(e.target.value)}
                                                 size="md"
                                                 borderRadius="md"
-                                                w={{ base: "100%", sm: "200px" }}
-                                                display={"flex"}
-                                                justifyContent={{ base: "center", sm: "flex-start" }}
+                                                w={{ base: "100%", sm: "170px" }}
                                             />
 
 
